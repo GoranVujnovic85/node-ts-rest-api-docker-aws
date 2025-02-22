@@ -19,63 +19,65 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface OrderItemAttributes {
   id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
+  orderId: number;
+  dishId: number;
+  quantity: number;
+  price: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface OrderItemCreationAttributes extends Optional<OrderItemAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class OrderItem extends Model<OrderItemAttributes, OrderItemCreationAttributes> implements OrderItemAttributes {
+  public id!: number;
+  public orderId!: number;
+  public dishId!: number;
+  public quantity!: number;
+  public price!: number;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+OrderItem.init(
   {
-    name: {
-      type: DataTypes.STRING,
+    orderId: {
+      type: DataTypes.INTEGER,
+      allowNull: false, 
+    },
+    dishId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false, 
     },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: false, 
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true
   }
 );
 
-export default ContactMessage;
+// Defining associations
+import Order from '../../order/models/Order'; 
+import Dish from '../../dish/models/Dish';  
+
+OrderItem.belongsTo(Order, {
+  foreignKey: 'orderId',
+});
+OrderItem.belongsTo(Dish, {
+  foreignKey: 'dishId',
+});
+
+export type { OrderItemAttributes, OrderItemCreationAttributes };
+export default OrderItem;

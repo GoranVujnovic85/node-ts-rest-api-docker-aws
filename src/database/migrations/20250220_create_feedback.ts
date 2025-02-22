@@ -16,66 +16,57 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { QueryInterface, DataTypes } from 'sequelize';
 
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable('Feedbacks', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
+      },
+      dishId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Dishes',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
+      },
+      rating: {
+        type: DataTypes.INTEGER,
+        allowNull: true, 
+      },
+      comment: {
+        type: DataTypes.TEXT,
+        allowNull: true, 
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    });
   },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
 
-export default ContactMessage;
+  down: async (queryInterface: QueryInterface) => {
+    await queryInterface.dropTable('Feedbacks');
+  },
+};

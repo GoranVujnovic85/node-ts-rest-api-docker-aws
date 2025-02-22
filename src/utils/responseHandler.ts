@@ -16,66 +16,24 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { Response } from "express";
 
+class ResponseHandler {
+    static successResponse<T>(res: Response, message: string, data: T | null = null, statusCode: number = 200): Response {
+        return res.status(statusCode).json({
+            success: true,
+            message,
+            data,
+        });
+    }
 
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+    static errorResponse(res: Response, message: string, statusCode: number = 500, errors: any = null): Response {
+        return res.status(statusCode).json({
+            success: false,
+            message,
+            errors,
+        });
+    }
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
-  },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
-
-export default ContactMessage;
+export default ResponseHandler;

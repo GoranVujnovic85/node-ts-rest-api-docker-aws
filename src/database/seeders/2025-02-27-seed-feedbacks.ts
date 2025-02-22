@@ -16,66 +16,43 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { QueryInterface } from 'sequelize';
 
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    console.log('Seeding feedbacks...');
+    await queryInterface.bulkInsert('Feedbacks', [
+      {
+        userId: 1, 
+        dishId: 1, 
+        rating: 5,
+        comment: 'Absolutely delicious, best spaghetti ever!',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        userId: 2, 
+        dishId: 2, 
+        rating: 4,
+        comment: 'Great salad, but could use more dressing.',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        userId: null, // Example of anonymous feedback (userId can be null)
+        dishId: 3, 
+        rating: 3,
+        comment: 'The cake was okay, a bit too sweet.',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    console.log('Seeding completed successfully.');
   },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
 
-export default ContactMessage;
+  down: async (queryInterface: QueryInterface) => {
+    console.log('Undoing seed...');
+    await queryInterface.bulkDelete('Feedbacks', {}, {});
+    console.log('Undo completed.');
+  },
+};

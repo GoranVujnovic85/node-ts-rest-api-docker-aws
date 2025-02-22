@@ -19,63 +19,67 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface UserAttributes {
   id?: number;
-  name: string;
+  username: string;
   email: string;
-  subject: string;
-  message: string;
-  status: string;
+  password: string;
+  role: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+  public id!: number;
+  public username!: string;
+  public email!: string;
+  public password!: string;
+  public role!: string;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+User.init(
   {
-    name: {
+    username: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false, 
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false, 
     },
-    subject: {
+    password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false, 
     },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
+    role: {
       type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
+      allowNull: false, 
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true, 
   }
 );
 
-export default ContactMessage;
+// Defining associations
+import Order from '../../order/models/Order';     
+import Feedback from '../../feedback/models/Feedback'; 
+
+User.hasMany(Order, {
+  foreignKey: 'userId',
+  onDelete: 'CASCADE',
+});
+User.hasMany(Feedback, {
+  foreignKey: 'userId',
+  onDelete: 'SET NULL',
+});
+
+export type { UserAttributes, UserCreationAttributes };
+export default User;

@@ -16,66 +16,44 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import express from 'express';
+import sequelize from './config/database';
+//import passport from './middlewares/passport';
+
+import publicRoutes from "./modules/contactMessage/routes/public/publicRoutes";
+import privateRoutes from "./modules/contactMessage/routes/private/privateRoutes";
 
 
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+
+
+
+const app = express();
+app.use(express.json());
+//app.use(passport.initialize());
+
+// Postavljanje ruta
+app.use("/api/public", publicRoutes);
+app.use("/api/private", privateRoutes);
+
+
+
+const PORT = process.env.PORT || 3000;
+
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+
+    await sequelize.sync({ force: false });
+    console.log('Database synced.');
+
+    // Starting the Express server
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
-  },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
-
-export default ContactMessage;
+startServer();

@@ -16,66 +16,44 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { QueryInterface } from 'sequelize';
+import * as bcrypt from 'bcrypt';
 
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    console.log('Seeding users...');
+    await queryInterface.bulkInsert('Users', [
+      {
+        username: 'Goran',
+        email: 'goranv@gmail.com',
+        password: 'test123', 
+        role: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        username: 'admin',
+        email: 'admin@gmail.com',
+        password: 'admin123', 
+        role: 'admin',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        username: 'mirjana',
+        email: 'mirjana@gmail.com',
+        password: 'test12', 
+        role: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    console.log('Seeding completed successfully.');
   },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
 
-export default ContactMessage;
+  down: async (queryInterface: QueryInterface) => {
+    console.log('Undoing seed...');
+    await queryInterface.bulkDelete('Users', {}, {});
+    console.log('Undo completed.');
+  },
+};

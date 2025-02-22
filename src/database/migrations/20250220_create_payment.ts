@@ -16,27 +16,52 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import express from 'express';
-import sequelize from './src/config/database';
+import { QueryInterface, DataTypes } from 'sequelize';
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-async function startServer() {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connection established successfully.');
-
-    await sequelize.sync({ force: false });
-    console.log('Database synced.');
-
-    // Starting the Express server
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable('Payments', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+      },
+      orderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Orders',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      method: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+      },
+      paymentDate: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     });
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
-}
+  },
 
-startServer();
+  down: async (queryInterface: QueryInterface) => {
+    await queryInterface.dropTable('Payments');
+  },
+};

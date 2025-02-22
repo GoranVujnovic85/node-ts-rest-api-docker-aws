@@ -15,67 +15,44 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+import dotenv from "dotenv";
+import passport from "passport";
+import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-jwt";
+import { Request } from "express";
+import User from "../modules/contactMessage/models/ContactMessage"; 
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+dotenv.config();
 
+// Options for JWT strategy with explicit type `StrategyOptions`
+const options: StrategyOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.JWT_SECRET as string,
+    passReqToCallback: false, // Can be `true' if you need `req' in the strategy
 
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+};
+
+// Define the type for jwtPayload
+interface JwtPayload {
+    id: number;
+    email: string;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+// Passport strategy for JWT authentication
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
-  },
-  {
-    sequelize,
-    timestamps: true,
-  }
+passport.use(
+    new JwtStrategy(options, async (jwtPayload: JwtPayload, done) => {
+        try {
+            const user = await User.findByPk(jwtPayload.id); // Find user by ID
+            if (user) {
+                return done(null, { id: user.id, role: user.role });
+            }
+            return done(null, false);
+        } catch (error) {
+            return done(error, false);
+        }
+    })
 );
 
-export default ContactMessage;
+export default passport;
+*/

@@ -16,66 +16,57 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { QueryInterface, DataTypes } from 'sequelize';
 
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable('OrderItems', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+      },
+      orderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Orders',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      dishId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Dishes',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: true, 
+      },
+      price: {
+        type: DataTypes.FLOAT,
+        allowNull: true, 
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    });
   },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
 
-export default ContactMessage;
+  down: async (queryInterface: QueryInterface) => {
+    await queryInterface.dropTable('OrderItems');
+  },
+};

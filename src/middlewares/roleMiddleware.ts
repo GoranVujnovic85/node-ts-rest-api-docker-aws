@@ -15,67 +15,27 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+import { Request, Response, NextFunction } from "express";
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
-
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+// Extended Request interface with user coming from Passport
+interface AuthRequest extends Request {
+    user?: { id: string; role: string };
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+const isCustomer = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (req.user && req.user.role === "customer") {
+        return next();
+    }
+    res.status(403).json({ success: false, message: "Forbidden: Customers only." });
+};
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+const isAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (req.user && req.user.role === "admin") {
+        return next();
+    }
+    res.status(403).json({ success: false, message: "Forbidden: Admins only." });
+};
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
-  },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
-
-export default ContactMessage;
+export { isCustomer, isAdmin };
+*/

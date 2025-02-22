@@ -16,66 +16,43 @@
  * IMPLIED.                                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../../../config/database';
+import { QueryInterface } from 'sequelize';
 
-
-// Define interface for model attributes
-interface ContactMessageAttributes {
-  id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
-
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
-
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
-  {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
-    },
+export default {
+  up: async (queryInterface: QueryInterface) => {
+    console.log('Seeding order items...');
+    await queryInterface.bulkInsert('OrderItems', [
+      {
+        orderId: 1, 
+        dishId: 1,  
+        quantity: 2,
+        price: 12.99, 
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        orderId: 1, 
+        dishId: 2,  
+        quantity: 1,
+        price: 9.50, 
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        orderId: 2, 
+        dishId: 3,  
+        quantity: 3,
+        price: 6.75, 
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    console.log('Seeding completed successfully.');
   },
-  {
-    sequelize,
-    timestamps: true,
-  }
-);
 
-export default ContactMessage;
+  down: async (queryInterface: QueryInterface) => {
+    console.log('Undoing seed...');
+    await queryInterface.bulkDelete('OrderItems', {}, {});
+    console.log('Undo completed.');
+  },
+};

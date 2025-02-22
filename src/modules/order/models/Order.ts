@@ -19,63 +19,71 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface OrderAttributes {
   id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
+  userId: number;
+  date: Date;
   status: string;
+  totalPrice: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface OrderCreationAttributes extends Optional<OrderAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
+  public id!: number;
+  public userId!: number;
+  public date!: Date;
+  public status!: string;
+  public totalPrice!: number;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+Order.init(
   {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false, 
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false, 
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
+      allowNull: false, 
+    },
+    totalPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: false, 
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true
   }
 );
 
-export default ContactMessage;
+// Defining associations
+import User from '../../user/models/User';         
+import OrderItem from '../../orderItem/models/OrderItems'; 
+import Payment from '../../payment/models/Payment'; 
+
+Order.belongsTo(User, {
+  foreignKey: 'userId',
+});
+Order.hasMany(OrderItem, {
+  foreignKey: 'orderId',
+  onDelete: 'CASCADE',
+});
+Order.hasOne(Payment, {
+  foreignKey: 'orderId',
+  onDelete: 'CASCADE',
+});
+
+export type { OrderAttributes, OrderCreationAttributes };
+export default Order;

@@ -14,68 +14,78 @@
  *                                                                              *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
  * IMPLIED.                                                                     *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */  
 
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface DishAttributes {
   id?: number;
   name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
+  description: string;
+  price: number;
+  image: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface DishCreationAttributes extends Optional<DishAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class Dishes extends Model<DishAttributes, DishCreationAttributes> implements DishAttributes {
+  public id!: number;
+  public name!: string;
+  public description!: string;
+  public price!: number;
+  public image!: string;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+Dishes.init(
   {
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false, 
     },
-    email: {
+    description: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, 
     },
-    subject: {
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: false, 
+    },
+    image: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
+      allowNull: true, 
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true, 
   }
 );
 
-export default ContactMessage;
+// Defining associations
+import DailyMenu from '../../dailyMenu/models/DailyMenu'; 
+import OrderItem from '../../orderItem/models/OrderItems'; 
+import Feedback from '../../feedback/models/Feedback';   
+
+Dishes.belongsToMany(DailyMenu, {
+  through: 'DailyMenuDishes',
+  foreignKey: 'dishId',
+  as: 'dailyMenus',
+});
+Dishes.hasMany(OrderItem, {
+  foreignKey: 'dishId',
+  onDelete: 'CASCADE',
+});
+Dishes.hasMany(Feedback, {
+  foreignKey: 'dishId',
+  onDelete: 'SET NULL',
+});
+
+export type { DishAttributes, DishCreationAttributes };
+export default Dishes;

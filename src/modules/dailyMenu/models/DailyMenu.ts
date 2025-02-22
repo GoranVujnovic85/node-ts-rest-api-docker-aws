@@ -14,68 +14,50 @@
  *                                                                              *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
  * IMPLIED.                                                                     *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */  
 
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface DailyMenuAttributes {
   id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
+  date: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface DailyMenuCreationAttributes extends Optional<DailyMenuAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class DailyMenu extends Model<DailyMenuAttributes, DailyMenuCreationAttributes>
+  implements DailyMenuAttributes {
+  public id!: number;
+  public date!: Date;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+DailyMenu.init(
   {
-    name: {
-      type: DataTypes.STRING,
+    date: {
+      type: DataTypes.DATE,
       allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    message: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true, 
   }
 );
 
-export default ContactMessage;
+// Define the association (I assume the Dish model exists)
+import Dish from '../../dish/models/Dish'; 
+DailyMenu.belongsToMany(Dish, {
+  through: 'DailyMenuDishes',
+  foreignKey: 'dailyMenuId',
+  as: 'dishes',
+});
+
+export type { DailyMenuAttributes, DailyMenuCreationAttributes };
+export default DailyMenu;

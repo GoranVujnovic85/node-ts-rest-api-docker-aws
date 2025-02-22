@@ -14,68 +14,70 @@
  *                                                                              *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
  * IMPLIED.                                                                     *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */  
 
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../../config/database';
 
-
 // Define interface for model attributes
-interface ContactMessageAttributes {
+interface FeedbackAttributes {
   id?: number;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: string;
+  userId: number | null; // allows a record in the Feedback table to exist even if it is not associated with a specific user (userId) or dish (dishId).
+  dishId: number | null; // allows a record in the Feedback table to exist even if it is not associated with a specific user (userId) or dish (dishId).
+  rating: number;
+  comment: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-interface ContactMessageCreationAttributes extends Optional<ContactMessageAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface FeedbackCreationAttributes extends Optional<FeedbackAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class ContactMessage extends Model<ContactMessageAttributes, ContactMessageCreationAttributes> 
-  implements ContactMessageAttributes {
+class Feedback extends Model<FeedbackAttributes, FeedbackCreationAttributes> implements FeedbackAttributes {
+  public id!: number;
+  public userId!: number | null;
+  public dishId!: number | null;
+  public rating!: number;
+  public comment!: string;
 
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public subject!: string;
-    public message!: string;
-    public status!: string;
-    
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
-  }
-  
-ContactMessage.init(
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+Feedback.init(
   {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    dishId: {
+      type: DataTypes.INTEGER,
+      allowNull: true, 
     },
-    subject: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    rating: {
+      type: DataTypes.INTEGER,
+      allowNull: false, 
     },
-    message: {
+    comment: {
       type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'new',
+      allowNull: true, 
     },
   },
   {
     sequelize,
-    timestamps: true,
+    timestamps: true, 
   }
 );
 
-export default ContactMessage;
+// Definisanje asocijacija
+import User from '../../user/models/User'; 
+import Dish from '../../dish/models/Dish'; 
+
+Feedback.belongsTo(User, {
+  foreignKey: 'userId'
+});
+Feedback.belongsTo(Dish, {
+  foreignKey: 'dishId'
+});
+
+export type { FeedbackAttributes, FeedbackCreationAttributes };
+export default Feedback;
