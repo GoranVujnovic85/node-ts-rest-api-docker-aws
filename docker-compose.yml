@@ -1,0 +1,44 @@
+version: "3.3"
+
+services:
+  kitchen-backend:
+    build: .
+    container_name: kitchen-backend-container  # Backend container name
+
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=kitchen-db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=kitchen_typescript
+      - DOCKER_ENV=true
+    depends_on:
+      - kitchen-db  # Database dependency
+    volumes:
+      - .:/app
+      - /app/node_modules  # Ignoring the local node_modules folder in the container
+
+
+    networks:
+      - kitchen-network
+
+  kitchen-db:
+    image: mysql:5.7
+    container_name: kitchen-db-container  # The name of the container for MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kitchen_typescript
+    ports:
+      - "3306:3306"
+    volumes:
+      - kitchen-db-data:/var/lib/mysql
+    networks:
+      - kitchen-network
+
+networks:
+  kitchen-network:
+    driver: bridge
+
+volumes:
+  kitchen-db-data:

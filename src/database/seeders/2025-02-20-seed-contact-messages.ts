@@ -25,14 +25,18 @@ export default {
       {
         name: 'Pera Peric',
         email: 'peraperic@gmail.com',
+        subject: 'Inquiry',  
         message: 'This is a test message.',
+        status: 'new',  
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         name: 'Stojan Stojnic',
         email: 'stojnic.s@gmail.com',
+        subject: 'Feedback',  
         message: 'Another test message.',
+        status: 'new',  
         createdAt: new Date(),
         updatedAt: new Date(),
       },

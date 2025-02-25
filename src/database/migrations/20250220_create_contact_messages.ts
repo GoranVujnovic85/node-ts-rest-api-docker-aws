@@ -35,9 +35,18 @@ export default {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      subject: {  
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       message: {
         type: DataTypes.TEXT,
         allowNull: false,
+      },
+      status: {  
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'new',
       },
       createdAt: {
         type: DataTypes.DATE,
